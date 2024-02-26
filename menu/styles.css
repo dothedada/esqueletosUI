@@ -7,7 +7,7 @@
 	position: fixed;
 	display: flex;
 	width: 100%;
-	justify-content: space-between;
+	/* justify-content: space-between; */
 	align-items: center;
 
 	background-color: red;
@@ -16,6 +16,7 @@
 	display: block;
 	min-width: 70px;
 	aspect-ratio: 1;
+	margin: 0 auto 0 0;
 	background-color: green;
 }
 .mainMenu__items {
@@ -25,6 +26,7 @@
 	list-style: none;
 	padding: 0;
 	margin: 0;
+	background: green;
 }
 
 .mainMenu__items--small {
@@ -46,8 +48,9 @@
 }
 .mainMenu__btn {
 	background: blue;
+	white-space: nowrap;
 	border: none;
-	min-width: 48px;
+	min-width: max(48px, max-content);
 	min-height: 48px;
 	cursor: pointer;
 }

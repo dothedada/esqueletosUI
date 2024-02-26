@@ -1,51 +1,61 @@
 const menu = document.querySelector('.mainMenu');
-const menulogo = menu.querySelector('.mainMenu__logo');
 const menuItems = menu.querySelector('.mainMenu__items');
+const menuItemsWidth = [...menuItems.children].map((item) => item.clientWidth);
+let menuBtn;
+let newMenuBar;
 
-const settings = {
-    hideAllElements: true,
-    openMenuText: 'Menú',
-    closeMenuText: 'Cerrar',
-    showMoreText: 'Ver más',
+const opts = {
+    gap: +getComputedStyle(menuItems).gap.slice(0, -2),
+    hideAll: false,
+    openMenuTXT: 'Menú',
+    hideMenuTXT: 'Cerrar',
+    viewMoreTXT: 'Ver más',
 };
 
-const menuBtn = document.createElement('button');
-menuBtn.classList.add('mainMenu__btn');
-menuBtn.setAttribute('aria-controls', 'menuItems');
-menuBtn.setAttribute('aria-expanded', 'false');
-menuBtn.textContent = settings.hideAllElements
-    ? settings.openMenuText
-    : settings.showMoreText;
+const renderMenu = () => {
+    const menuSpace = menu.clientWidth - menu.firstElementChild.clientWidth;
 
-menuBtn.addEventListener('click', () => {
-    if (menuBtn.getAttribute('aria-expanded') === 'false') {
+    if (menuBtn) {
+        menuItems.classList.remove('mainMenu__items--small');
         menuItems.classList.remove('mainMenu__items--hidden');
-        menuItems.setAttribute('aria-hidden', 'false');
-        menuBtn.setAttribute('aria-expanded', 'true');
-        menuBtn.textContent = settings.closeMenuText;
-        return;
+        menuBtn.remove();
+        newMenuBar.remove();
     }
+
+    if (menuSpace > menuItems.clientWidth) return;
+
+    menuBtn = document.createElement('button');
+    menuBtn.classList.add('mainMenu__btn');
+    menuBtn.setAttribute('aria-controls', 'menuItems');
+    menuBtn.setAttribute('aria-expanded', 'false');
+    menuBtn.textContent = opts.hideAll ? opts.openMenuTXT : opts.viewMoreTXT;
+    menu.appendChild(menuBtn);
+
+    if (!opts.hideAll) {
+        const newMenuSpace = menuSpace - menuBtn.clientWidth;
+        newMenuBar = document.createElement('ul');
+        newMenuBar.classList.add('mainMenu__items');
+        const newMenuItems = [...menuItems.cloneNode(true).children];
+
+        menuItemsWidth.reduce((count, item, index) => {
+            if (count - item - opts.gap > 0) {
+                newMenuBar.appendChild(newMenuItems[index]);
+            }
+            return count - item - opts.gap;
+        }, newMenuSpace);
+
+        menu.insertBefore(newMenuBar, menuBtn);
+    }
+
+    menuItems.classList.add('mainMenu__items--small');
     menuItems.classList.add('mainMenu__items--hidden');
     menuItems.setAttribute('aria-hidden', 'true');
-    menuBtn.setAttribute('aria-expanded', 'false');
-    menuBtn.textContent = settings.hideAllElements
-        ? settings.openMenuText
-        : settings.showMoreText;
-});
 
-const renderSmallMenu = () => {
-    menuItems.classList.remove('mainMenu__items--small');
-    menuItems.setAttribute('aria-hidden', 'true');
-    menuBtn.setAttribute('aria-expanded', 'false');
-    menuBtn.remove();
+    menuBtn.addEventListener('click', () => {
 
-    if (menu.clientWidth - menulogo.clientWidth < menuItems.clientWidth) {
-        menuItems.classList.add('mainMenu__items--small');
-        menuItems.classList.add('mainMenu__items--hidden');
-        menu.appendChild(menuBtn);
-    }
+    })
 };
-renderSmallMenu();
+renderMenu();
 
 const debounce = (callback, wait = 100) => {
     let timer;
@@ -55,4 +65,44 @@ const debounce = (callback, wait = 100) => {
     };
 };
 
-window.addEventListener('resize', debounce(renderSmallMenu, 100));
+window.addEventListener('resize', debounce(renderMenu, 150));
+
+// const menuBtn = document.createElement('button');
+// menuBtn.classList.add('mainMenu__btn');
+// menuBtn.setAttribute('aria-controls', 'menuItems');
+// menuBtn.setAttribute('aria-expanded', 'false');
+// menuBtn.textContent = settings.hideAllElements
+//     ? settings.openMenuText
+//     : settings.showMoreText;
+//
+// menuBtn.addEventListener('click', () => {
+//     if (menuBtn.getAttribute('aria-expanded') === 'false') {
+//         menuItems.classList.remove('mainMenu__items--hidden');
+//         menuItems.setAttribute('aria-hidden', 'false');
+//         menuBtn.setAttribute('aria-expanded', 'true');
+//         menuBtn.textContent = settings.closeMenuText;
+//         return;
+//     }
+//     menuItems.classList.add('mainMenu__items--hidden');
+//     menuItems.setAttribute('aria-hidden', 'true');
+//     menuBtn.setAttribute('aria-expanded', 'false');
+//     menuBtn.textContent = settings.hideAllElements
+//         ? settings.openMenuText
+//         : settings.showMoreText;
+// });
+//
+// const renderSmallMenu = () => {
+//     menuItems.classList.remove('mainMenu__items--small');
+//     menuItems.setAttribute('aria-hidden', 'true');
+//     menuBtn.setAttribute('aria-expanded', 'false');
+//     menuBtn.remove();
+//
+//     if (menu.clientWidth - menulogo.clientWidth < menuItems.clientWidth) {
+//         menuItems.classList.add('mainMenu__items--small');
+//         menuItems.classList.add('mainMenu__items--hidden');
+//         menu.appendChild(menuBtn);
+//     }
+// };
+// renderSmallMenu();
+
+// window.addEventListener('resize', debounce(renderSmallMenu, 100));
