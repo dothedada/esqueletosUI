@@ -53,6 +53,7 @@ const toggleMenu = () => {
 
 const renderMenu = () => {
     const menuSpace = menu.clientWidth - menu.firstElementChild.clientWidth;
+    document.body.style.overflow = 'unset';
 
     if (menuBtn) {
         menuItems.classList.remove('mainMenu__items--small');
@@ -97,7 +98,6 @@ const renderMenu = () => {
     });
 };
 renderMenu();
-
 
 const debounce = (callback, wait = 100) => {
     let timer;
