@@ -25,7 +25,7 @@ const closeMenu = () => {
     }
     menuItems.classList.add('mainMenu__items--hidden');
     setMenuAria(false);
-    document.body.style.overflow = 'unset'
+    document.body.style.overflow = 'unset';
 };
 
 const toggleMenu = () => {
@@ -35,7 +35,9 @@ const toggleMenu = () => {
     }
     setMenuAria(!JSON.parse(menuBtn.ariaExpanded));
     menuItems.classList.toggle('mainMenu__items--hidden');
-    document.body.style.overflow = JSON.parse(menuBtn.ariaExpanded) ? 'hidden' : 'unset'
+    document.body.style.overflow = JSON.parse(menuBtn.ariaExpanded)
+        ? 'hidden'
+        : 'unset';
 };
 
 const renderMenu = () => {
@@ -77,13 +79,25 @@ const renderMenu = () => {
     menuItems.classList.add('mainMenu__items--small');
     menuItems.classList.add('mainMenu__items--hidden');
 
-    menuItems.addEventListener('click', toggleMenu)
+    menuItems.addEventListener('click', toggleMenu);
     menuBtn.addEventListener('click', toggleMenu);
     document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') closeMenu()
+        if (event.key === 'Escape') closeMenu();
     });
 };
 renderMenu();
+
+const hideMenu = (() => {
+    let initialScroll = window.scrollY;
+    window.addEventListener('scroll', () => {
+        if (initialScroll < window.scrollY) {
+            menu.classList.add('mainMenu--hidden')
+        } else {
+            menu.classList.remove('mainMenu--hidden')
+        }
+        initialScroll = window.scrollY;
+    });
+})()
 
 const debounce = (callback, wait = 100) => {
     let timer;

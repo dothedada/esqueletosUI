@@ -3,14 +3,16 @@
 	padding: 0;
 }
 .mainMenu {
-	/* box-sizing: border-box; */
 	position: fixed;
 	display: flex;
 	width: 100%;
-	/* justify-content: space-between; */
 	align-items: center;
 
 	background-color: red;
+	transition: transform 1s ease-in-out;
+}
+.mainMenu--hidden {
+	transform: translateY(-100%);
 }
 .mainMenu__logo {
 	display: block;
