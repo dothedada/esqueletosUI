@@ -52,8 +52,25 @@ const renderMenu = () => {
     menuItems.setAttribute('aria-hidden', 'true');
 
     menuBtn.addEventListener('click', () => {
-
-    })
+        console.log('aja?')
+        if (menuBtn.getAttribute('aria-expanded') === 'true') {
+            menuBtn.setAttribute('aria-expanded', 'false');
+            menuItems.setAttribute('aria-hidden', 'true');
+            menuItems.classList.add('mainMenu__items--hidden')
+            if (!opts.hideAll) {
+                menuBtn.textContent = opts.viewMoreTXT
+                newMenuBar.classList.remove('hidden')
+            }
+            return;
+        }
+        menuBtn.setAttribute('aria-expanded', 'true');
+        menuItems.setAttribute('aria-hidden', 'false');
+        menuItems.classList.remove('mainMenu__items--hidden')
+        if (!opts.hideAll) {
+            menuBtn.textContent = opts.hideMenuTXT
+            newMenuBar.classList.add('hidden')
+        }
+    });
 };
 renderMenu();
 
