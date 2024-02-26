@@ -4,6 +4,17 @@ const menuItemsWidth = [...menuItems.children].map((item) => item.clientWidth);
 let menuBtn;
 let newMenuBar;
 
+// NOTE: función para esconder el menú
+let initialScroll = window.scrollY;
+window.addEventListener('scroll', () => {
+    if (initialScroll < window.scrollY) {
+        menu.classList.add('mainMenu--hidden');
+    } else {
+        menu.classList.remove('mainMenu--hidden');
+    }
+    initialScroll = window.scrollY;
+});
+
 const opts = {
     gap: +getComputedStyle(menuItems).gap.slice(0, -2),
     hideAll: false,
@@ -87,17 +98,6 @@ const renderMenu = () => {
 };
 renderMenu();
 
-const hideMenu = (() => {
-    let initialScroll = window.scrollY;
-    window.addEventListener('scroll', () => {
-        if (initialScroll < window.scrollY) {
-            menu.classList.add('mainMenu--hidden')
-        } else {
-            menu.classList.remove('mainMenu--hidden')
-        }
-        initialScroll = window.scrollY;
-    });
-})()
 
 const debounce = (callback, wait = 100) => {
     let timer;
