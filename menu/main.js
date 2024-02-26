@@ -25,6 +25,7 @@ const closeMenu = () => {
     }
     menuItems.classList.add('mainMenu__items--hidden');
     setMenuAria(false);
+    document.body.style.overflow = 'unset'
 };
 
 const toggleMenu = () => {
@@ -34,6 +35,7 @@ const toggleMenu = () => {
     }
     setMenuAria(!JSON.parse(menuBtn.ariaExpanded));
     menuItems.classList.toggle('mainMenu__items--hidden');
+    document.body.style.overflow = JSON.parse(menuBtn.ariaExpanded) ? 'hidden' : 'unset'
 };
 
 const renderMenu = () => {
