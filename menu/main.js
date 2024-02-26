@@ -12,6 +12,30 @@ const opts = {
     viewMoreTXT: 'Ver más',
 };
 
+const setMenuAria = (visible) => {
+    menuBtn.ariaExpanded = visible;
+    menuItems.ariaHidden = !visible;
+};
+
+const closeMenu = () => {
+    if (menuBtn.ariaExpanded !== 'true') return;
+    if (!opts.hideAll) {
+        menuBtn.textContent = opts.viewMoreTXT;
+        newMenuBar.classList.remove('hidden');
+    }
+    menuItems.classList.add('mainMenu__items--hidden');
+    setMenuAria(false);
+};
+
+const toggleMenu = () => {
+    if (!opts.hideAll) {
+        menuBtn.textContent = opts.hideMenuTXT;
+        newMenuBar.classList.toggle('hidden');
+    }
+    setMenuAria(!JSON.parse(menuBtn.ariaExpanded));
+    menuItems.classList.toggle('mainMenu__items--hidden');
+};
+
 const renderMenu = () => {
     const menuSpace = menu.clientWidth - menu.firstElementChild.clientWidth;
 
@@ -27,7 +51,6 @@ const renderMenu = () => {
     menuBtn = document.createElement('button');
     menuBtn.classList.add('mainMenu__btn');
     menuBtn.setAttribute('aria-controls', 'menuItems');
-    menuBtn.setAttribute('aria-expanded', 'false');
     menuBtn.textContent = opts.hideAll ? opts.openMenuTXT : opts.viewMoreTXT;
     menu.appendChild(menuBtn);
 
@@ -47,29 +70,15 @@ const renderMenu = () => {
         menu.insertBefore(newMenuBar, menuBtn);
     }
 
+    setMenuAria(false);
+
     menuItems.classList.add('mainMenu__items--small');
     menuItems.classList.add('mainMenu__items--hidden');
-    menuItems.setAttribute('aria-hidden', 'true');
 
-    menuBtn.addEventListener('click', () => {
-        console.log('aja?')
-        if (menuBtn.getAttribute('aria-expanded') === 'true') {
-            menuBtn.setAttribute('aria-expanded', 'false');
-            menuItems.setAttribute('aria-hidden', 'true');
-            menuItems.classList.add('mainMenu__items--hidden')
-            if (!opts.hideAll) {
-                menuBtn.textContent = opts.viewMoreTXT
-                newMenuBar.classList.remove('hidden')
-            }
-            return;
-        }
-        menuBtn.setAttribute('aria-expanded', 'true');
-        menuItems.setAttribute('aria-hidden', 'false');
-        menuItems.classList.remove('mainMenu__items--hidden')
-        if (!opts.hideAll) {
-            menuBtn.textContent = opts.hideMenuTXT
-            newMenuBar.classList.add('hidden')
-        }
+    menuItems.addEventListener('click', toggleMenu)
+    menuBtn.addEventListener('click', toggleMenu);
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') closeMenu()
     });
 };
 renderMenu();
@@ -83,43 +92,3 @@ const debounce = (callback, wait = 100) => {
 };
 
 window.addEventListener('resize', debounce(renderMenu, 150));
-
-// const menuBtn = document.createElement('button');
-// menuBtn.classList.add('mainMenu__btn');
-// menuBtn.setAttribute('aria-controls', 'menuItems');
-// menuBtn.setAttribute('aria-expanded', 'false');
-// menuBtn.textContent = settings.hideAllElements
-//     ? settings.openMenuText
-//     : settings.showMoreText;
-//
-// menuBtn.addEventListener('click', () => {
-//     if (menuBtn.getAttribute('aria-expanded') === 'false') {
-//         menuItems.classList.remove('mainMenu__items--hidden');
-//         menuItems.setAttribute('aria-hidden', 'false');
-//         menuBtn.setAttribute('aria-expanded', 'true');
-//         menuBtn.textContent = settings.closeMenuText;
-//         return;
-//     }
-//     menuItems.classList.add('mainMenu__items--hidden');
-//     menuItems.setAttribute('aria-hidden', 'true');
-//     menuBtn.setAttribute('aria-expanded', 'false');
-//     menuBtn.textContent = settings.hideAllElements
-//         ? settings.openMenuText
-//         : settings.showMoreText;
-// });
-//
-// const renderSmallMenu = () => {
-//     menuItems.classList.remove('mainMenu__items--small');
-//     menuItems.setAttribute('aria-hidden', 'true');
-//     menuBtn.setAttribute('aria-expanded', 'false');
-//     menuBtn.remove();
-//
-//     if (menu.clientWidth - menulogo.clientWidth < menuItems.clientWidth) {
-//         menuItems.classList.add('mainMenu__items--small');
-//         menuItems.classList.add('mainMenu__items--hidden');
-//         menu.appendChild(menuBtn);
-//     }
-// };
-// renderSmallMenu();
-
-// window.addEventListener('resize', debounce(renderSmallMenu, 100));

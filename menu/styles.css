@@ -26,7 +26,7 @@
 	list-style: none;
 	padding: 0;
 	margin: 0;
-	background: green;
+	transition: transform 0.2s ease-in-out;
 }
 
 .mainMenu__items--small {
@@ -36,11 +36,12 @@
 	background-color: black;
 	top: 100%;
 	width: 100%;
-	left: 0;
-	transition: left 0.2s ease-in-out;
+	left: 100%;
+	transform: translateX(-100%);
+	transition: transform 0.2s ease-in-out;
 }
 .mainMenu__items--hidden {
-	left: 100%;
+	transform: translateX(0%);
 }
 
 .mainMenu__items > * {
