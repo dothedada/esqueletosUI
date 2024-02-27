@@ -18,7 +18,8 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             const previousImg = document.querySelector(
                 `#${galleryID} .gallery__slide--visible`,
             );
-            if (previousImg) previousImg.classList.remove('gallery__slide--visible');
+            if (previousImg)
+                previousImg.classList.remove('gallery__slide--visible');
             slidesLibrary[image].classList.add('gallery__slide--visible');
         }
     };
@@ -30,7 +31,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     next.textContent = settings.nextTXT;
     next.addEventListener('click', () => {
         current = current < slidesLibrary.length - 1 ? current + 1 : 0;
-    makeVisible(current);
+        makeVisible(current);
         console.log(current);
     });
 
@@ -39,7 +40,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     prev.textContent = settings.prevTXT;
     prev.addEventListener('click', () => {
         current = current > 0 ? current - 1 : slidesLibrary.length - 1;
-    makeVisible(current);
+        makeVisible(current);
         console.log(current);
     });
 
@@ -51,10 +52,11 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         dot.addEventListener('click', () => {
             current = index;
             console.log(current);
-    makeVisible(current);
+            makeVisible(current);
         });
         dots.appendChild(dot);
     });
 
     gallery.append(prev, dots, next);
+	gallery.style.marginBottom = `${dots.clientHeight}px`
 });
