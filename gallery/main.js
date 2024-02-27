@@ -5,6 +5,8 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         dotTXT: '·',
         imageSize: 'fill', // contain
         transition: 'alpha', // horizontal - vertical
+        playTXT: 'Play',
+        stopTXT: 'Stop',
     };
 
     const gallery = gal;
@@ -54,6 +56,27 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         });
         dots.appendChild(dot);
     });
+
+    let autoplay = setInterval(() => {
+        current = current < slidesLibrary.length - 1 ? current + 1 : 0;
+        makeVisible(current);
+    }, 1000);
+
+    let play = true;
+    const playBtn = document.createElement('button');
+    playBtn.textContent = settings.stopTXT;
+    playBtn.addEventListener('click', () => {
+        if (play) {
+            clearInterval(autoplay);
+            play = false;
+        } else {
+            autoplay = setInterval(() => {
+                current = current < slidesLibrary.length - 1 ? current + 1 : 0;
+                makeVisible(current);
+            }, 1000);
+        }
+    });
+    dots.appendChild(playBtn);
 
     document.body.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowLeft') {
