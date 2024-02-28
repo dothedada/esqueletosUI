@@ -3,7 +3,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         nextTXT: '>',
         prevTXT: '<',
         slidesMarkerTXT: '·',
-        imageSize: 'fill', // contain
+        fillImage: true, // contain
         transition: 'alpha', // horizontal - vertical
         playTXT: 'Play',
         stopTXT: 'Stop',
@@ -11,17 +11,20 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         firstImg: 0,
         autoplay: true,
         posMarker: false,
-        captionOverlay: false,
+        captionOverlay: gal.getAttribute('captionsOverlay'),
     };
+    console.log(opts.captionOverlay)
 
     const gallery = gal;
     const galleryID = gal.getAttribute('id');
-    const slidesLibrary = [...gallery.children];
+    const slideLib = [...gallery.children];
     const dots = document.createElement('div');
-    let current = opts.firstImg > slidesLibrary.length ? opts.firstImg : 0;
+    let current = opts.firstImg > slideLib.length ? opts.firstImg : 0;
     let autoplay;
 
-    const makeVisible = (image) => {
+    // Slide render
+
+    const renderSlide = (img) => {
         if (opts.transition === 'alpha') {
             const previousImg = document.querySelector(
                 `#${galleryID} .gallery__slide--visible`,
@@ -29,14 +32,15 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             if (previousImg) {
                 previousImg.classList.remove('gallery__slide--visible');
             }
-            slidesLibrary[image].classList.add('gallery__slide--visible');
-            if (!opts.captionOverlay) {
-                console.log(slidesLibrary[image].querySelector('img').clientHeight)
-                console.log(slidesLibrary[image].querySelector('figcaption').clientHeight)
-            }
+            slideLib[img].classList.add('gallery__slide--visible');
+        }
+        if (!opts.captionOverlay) {
+            const totalHeight = slideLib[img].clientHeight;
+            const captionHeight = slideLib[img].querySelector('figcaption').clientHeight
+            slideLib[img].querySelector('img').style.height = `${totalHeight - captionHeight}px`
         }
     };
-    makeVisible(current);
+    renderSlide(current);
 
     if (opts.autoplay) {
         const playBtn = document.createElement('button');
@@ -44,12 +48,12 @@ document.querySelectorAll('.gallery').forEach((gal) => {
 
         const setAutoplay = () => {
             autoplay = setInterval(() => {
-                current = current < slidesLibrary.length - 1 ? current + 1 : 0;
-                makeVisible(current);
+                current = current < slideLib.length - 1 ? current + 1 : 0;
+                renderSlide(current);
             }, opts.autoplayMiliseconds);
         };
         setAutoplay();
-        
+
         playBtn.textContent = opts.stopTXT;
         playBtn.addEventListener('click', () => {
             if (!play) {
@@ -67,12 +71,12 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     }
 
     if (opts.posMarker) {
-        slidesLibrary.forEach((_, index) => {
+        slideLib.forEach((_, index) => {
             const dot = document.createElement('button');
             dot.textContent = opts.slidesMarkerTXT;
             dot.addEventListener('click', () => {
                 current = index;
-                makeVisible(current);
+                renderSlide(current);
                 clearInterval(autoplay);
             });
             dots.appendChild(dot);
@@ -83,8 +87,8 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     next.classList.add('gallery__nav', 'gallery__nav--next');
     next.textContent = opts.nextTXT;
     next.addEventListener('click', () => {
-        current = current < slidesLibrary.length - 1 ? current + 1 : 0;
-        makeVisible(current);
+        current = current < slideLib.length - 1 ? current + 1 : 0;
+        renderSlide(current);
         clearInterval(autoplay);
     });
 
@@ -92,20 +96,20 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     prev.classList.add('gallery__nav', 'gallery__nav--prev');
     prev.textContent = opts.prevTXT;
     prev.addEventListener('click', () => {
-        current = current > 0 ? current - 1 : slidesLibrary.length - 1;
-        makeVisible(current);
+        current = current > 0 ? current - 1 : slideLib.length - 1;
+        renderSlide(current);
         clearInterval(autoplay);
     });
 
     document.body.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowLeft') {
-            current = current > 0 ? current - 1 : slidesLibrary.length - 1;
-            makeVisible(current);
+            current = current > 0 ? current - 1 : slideLib.length - 1;
+            renderSlide(current);
             clearInterval(autoplay);
         }
         if (event.key === 'ArrowRight') {
-            current = current < slidesLibrary.length - 1 ? current + 1 : 0;
-            makeVisible(current);
+            current = current < slideLib.length - 1 ? current + 1 : 0;
+            renderSlide(current);
             clearInterval(autoplay);
         }
     });
