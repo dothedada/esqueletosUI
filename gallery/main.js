@@ -7,14 +7,15 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         stopTXT: 'Stop',
 
         transition: 'alpha', // horizontal - vertical
-        firstSlide: gal.getAttribute('firstSlide') ?? 0,
+        // firstSlide: 0,
         autoplay: JSON.parse(gal.getAttribute('autoplay')) ?? true,
-        autoStart: JSON.parse(gal.getAttribute('autoplayStar')) ?? true,
+        autoStart: JSON.parse(gal.getAttribute('autoplayStart')) ?? true,
         autoplaySecs: JSON.parse(gal.getAttribute('autoplaySeconds'))
             ? JSON.parse(gal.getAttribute('autoplaySeconds')) * 1000
-            : 4000,
+            : 2000,
         posMarker: JSON.parse(gal.getAttribute('slideMarkers')) ?? true,
         captionOverlay: JSON.parse(gal.getAttribute('captionsOverlay')) ?? true,
+        firstSlide: gal.getAttribute('firstSlide') ?? 0,
     };
 
     // TODO:
@@ -37,16 +38,15 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         const subsCallback = (callback) => {
             slide.functions.push(callback);
         };
-
         return { set, subsCallback };
     })();
 
-    let current = opts.firstSlide;
-    if (/random/i.test(opts.firstSlide)) {
+    let current = 0;
+    if (opts.firstSlide === 'random') {
         current = Math.floor(Math.random() * slideLib.length);
     }
     if (+opts.firstSlide < slideLib.length && +opts.firstSlide > 0) {
-        current = opts.firstSlide;
+        current = +opts.firstSlide;
     }
 
     const nextSlide = () => {
@@ -77,13 +77,15 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     };
     displaySlide.subsCallback(renderSlide);
 
-    console.log(slideLib[1].querySelector('img').getAttribute('data-contained'))
-
     let removeAutoplay;
     if (opts.autoplay) {
-        const playBtn = document.createElement('button');
         let play = opts.autoStart;
         let autoplay;
+
+        const playBtn = document.createElement('button')
+        playBtn.classList.add('dots__play');
+        playBtn.textContent = play ? opts.stopTXT : opts.playTXT;
+        dots.appendChild(playBtn);
 
         const setAutoplay = () => {
             autoplay = setInterval(() => nextSlide(), opts.autoplaySecs);
@@ -91,14 +93,12 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             play = true;
         };
         if (play) setAutoplay();
-
         removeAutoplay = () => {
             clearInterval(autoplay);
             playBtn.textContent = opts.playTXT;
             play = false;
         };
 
-        playBtn.textContent = play ? opts.stopTXT : opts.playTXT;
         playBtn.addEventListener('click', () => {
             if (!play) {
                 setAutoplay();
@@ -106,9 +106,6 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             }
             removeAutoplay();
         });
-
-        dots.appendChild(playBtn);
-
         gallery.addEventListener('mousemove', () => {
             if (!play) return;
             clearInterval(autoplay);
@@ -133,7 +130,9 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         const markCurrent = (slide) => {
             const marked = dots.querySelector('.dots__btn--active');
             if (marked) marked.classList.remove('dots__btn--active');
-            dots.children[slide].nextElementSibling.classList.add('dots__btn--active');
+            dots.children[slide + 1].classList.add(
+                'dots__btn--active',
+            );
         };
         displaySlide.subsCallback(markCurrent);
     }

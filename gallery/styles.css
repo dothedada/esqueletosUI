@@ -30,6 +30,9 @@
     width: 100%;
     left: 0;
 }
+.dots__play {
+    background: red;
+}
 .dots__btn {
     min-width: 1rem;
     min-height: 1rem;
