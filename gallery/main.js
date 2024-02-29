@@ -21,15 +21,16 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     const galleryID = gal.getAttribute('id');
     const slideLib = [...gallery.children];
     const dots = document.createElement('div');
+    const prevBtn = document.createElement('button');
+    const nextBtn = document.createElement('button');
 
-    let current;
+    let current = opts.firstSlide;
     if (/random/i.test(opts.firstSlide)) {
         current = Math.floor(Math.random() * slideLib.length);
     }
     if (+opts.firstSlide < slideLib.length && +opts.firstSlide > 0) {
         current = opts.firstSlide;
     }
-    current = current ?? 0;
 
     const next = () => {
         current = current < slideLib.length - 1 ? current + 1 : 0;
@@ -70,9 +71,9 @@ document.querySelectorAll('.gallery').forEach((gal) => {
                 renderSlide(next());
             }, opts.autoplaySecs);
         };
-        if(play) setAutoplay();
+        if (play) setAutoplay();
 
-        playBtn.textContent = play ? opts.stopTXT: opts.playTXT;
+        playBtn.textContent = play ? opts.stopTXT : opts.playTXT;
         playBtn.addEventListener('click', () => {
             if (!play) {
                 setAutoplay();
@@ -86,6 +87,17 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         });
 
         dots.appendChild(playBtn);
+
+        gallery.addEventListener('mouseenter', () => {
+            if (!play) return;
+            clearInterval(autoplay);
+            playBtn.textContent = opts.playTXT;
+        });
+        gallery.addEventListener('mouseleave', () => {
+            if (!play) return;
+            setAutoplay();
+            playBtn.textContent = opts.stopTXT;
+        });
     }
 
     if (opts.posMarker) {
@@ -101,7 +113,6 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         });
     }
 
-    const prevBtn = document.createElement('button');
     prevBtn.classList.add('gallery__nav', 'gallery__nav--prev');
     prevBtn.textContent = opts.prevTXT;
     prevBtn.addEventListener('click', () => {
@@ -109,23 +120,11 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         clearInterval(autoplay);
     });
 
-    const nextBtn = document.createElement('button');
     nextBtn.classList.add('gallery__nav', 'gallery__nav--next');
     nextBtn.textContent = opts.nextTXT;
     nextBtn.addEventListener('click', () => {
         renderSlide(next());
         clearInterval(autoplay);
-    });
-
-    document.body.addEventListener('keydown', (event) => {
-        if (event.key === 'ArrowLeft') {
-            renderSlide(prev());
-            clearInterval(autoplay);
-        }
-        if (event.key === 'ArrowRight') {
-            renderSlide(next());
-            clearInterval(autoplay);
-        }
     });
 
     dots.classList.add('gallery__dots');
