@@ -67,9 +67,10 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         let play = opts.autoStart;
 
         const setAutoplay = () => {
-            autoplay = setInterval(() => {
-                renderSlide(next());
-            }, opts.autoplaySecs);
+            autoplay = setInterval(
+                () => renderSlide(next()),
+                opts.autoplaySecs,
+            );
         };
         if (play) setAutoplay();
 
@@ -88,15 +89,13 @@ document.querySelectorAll('.gallery').forEach((gal) => {
 
         dots.appendChild(playBtn);
 
-        gallery.addEventListener('mouseenter', () => {
+        gallery.addEventListener('mousemove', () => {
             if (!play) return;
             clearInterval(autoplay);
-            playBtn.textContent = opts.playTXT;
-        });
-        gallery.addEventListener('mouseleave', () => {
-            if (!play) return;
-            setAutoplay();
-            playBtn.textContent = opts.stopTXT;
+            autoplay = setInterval(
+                () => renderSlide(next()),
+                opts.autoplaySecs,
+            );
         });
     }
 
