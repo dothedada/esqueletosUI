@@ -30,12 +30,12 @@
     width: 100%;
     left: 0;
 }
-.gallery__dots button {
+.dots__btn {
     min-width: 1rem;
     min-height: 1rem;
 }
 
-.dots__current {
+.dots__btn--active {
     background: none;
 }
 
