@@ -3,23 +3,32 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         nextTXT: '>',
         prevTXT: '<',
         slidesMarkerTXT: '·',
-        fillImage: true, // contain
         transition: 'alpha', // horizontal - vertical
         playTXT: 'Play',
         stopTXT: 'Stop',
-        autoplayMiliseconds: 3000,
-        firstImg: 0,
-        autoplay: true,
-        posMarker: false,
-        captionOverlay: gal.getAttribute('captionsOverlay'),
+        autoplaySecs: JSON.parse(gal.getAttribute('autoplaySeconds'))
+            ? JSON.parse(gal.getAttribute('autoplaySeconds')) * 1000
+            : 4000,
+        firstSlide: gal.getAttribute('firstSlide') ?? 0,
+        autoplay: JSON.parse(gal.getAttribute('autoplay')) ?? true,
+        posMarker: JSON.parse(gal.getAttribute('slideMarkers')) ?? true,
+        captionOverlay: JSON.parse(gal.getAttribute('captionsOverlay')) ?? true,
     };
-    console.log(opts.captionOverlay)
 
     const gallery = gal;
     const galleryID = gal.getAttribute('id');
     const slideLib = [...gallery.children];
     const dots = document.createElement('div');
-    let current = opts.firstImg > slideLib.length ? opts.firstImg : 0;
+
+    let current;
+    if (/random/i.test(opts.firstSlide)) {
+        current = Math.floor(Math.random() * slideLib.length);
+    }
+    if (+opts.firstSlide < slideLib.length && +opts.firstSlide > 0) {
+        current = opts.firstSlide;
+    }
+    if (!current) current = 0;
+
     let autoplay;
 
     // Slide render
@@ -36,8 +45,10 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         }
         if (!opts.captionOverlay) {
             const totalHeight = slideLib[img].clientHeight;
-            const captionHeight = slideLib[img].querySelector('figcaption').clientHeight
-            slideLib[img].querySelector('img').style.height = `${totalHeight - captionHeight}px`
+            const captionHeight =
+                slideLib[img].querySelector('figcaption').clientHeight;
+            slideLib[img].querySelector('img').style.height =
+                `${totalHeight - captionHeight}px`;
         }
     };
     renderSlide(current);
@@ -50,7 +61,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             autoplay = setInterval(() => {
                 current = current < slideLib.length - 1 ? current + 1 : 0;
                 renderSlide(current);
-            }, opts.autoplayMiliseconds);
+            }, opts.autoplaySecs);
         };
         setAutoplay();
 
