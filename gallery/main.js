@@ -3,14 +3,16 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         nextTXT: '>',
         prevTXT: '<',
         slidesMarkerTXT: '·',
-        transition: 'alpha', // horizontal - vertical
         playTXT: 'Play',
         stopTXT: 'Stop',
+
+        transition: 'alpha', // horizontal - vertical
+        firstSlide: gal.getAttribute('firstSlide') ?? 0,
+        autoplay: JSON.parse(gal.getAttribute('autoplay')) ?? true,
+        autoStart: JSON.parse(gal.getAttribute('autoplayStar')) ?? true,
         autoplaySecs: JSON.parse(gal.getAttribute('autoplaySeconds'))
             ? JSON.parse(gal.getAttribute('autoplaySeconds')) * 1000
             : 4000,
-        firstSlide: gal.getAttribute('firstSlide') ?? 0,
-        autoplay: JSON.parse(gal.getAttribute('autoplay')) ?? true,
         posMarker: JSON.parse(gal.getAttribute('slideMarkers')) ?? true,
         captionOverlay: JSON.parse(gal.getAttribute('captionsOverlay')) ?? true,
     };
@@ -27,11 +29,16 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     if (+opts.firstSlide < slideLib.length && +opts.firstSlide > 0) {
         current = opts.firstSlide;
     }
-    if (!current) current = 0;
+    current = current ?? 0;
 
-    let autoplay;
-
-    // Slide render
+    const next = () => {
+        current = current < slideLib.length - 1 ? current + 1 : 0;
+        return current;
+    };
+    const prev = () => {
+        current = current > 0 ? current - 1 : slideLib.length - 1;
+        return current;
+    };
 
     const renderSlide = (img) => {
         if (opts.transition === 'alpha') {
@@ -53,19 +60,19 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     };
     renderSlide(current);
 
+    let autoplay;
     if (opts.autoplay) {
         const playBtn = document.createElement('button');
-        let play = true;
+        let play = opts.autoStart;
 
         const setAutoplay = () => {
             autoplay = setInterval(() => {
-                current = current < slideLib.length - 1 ? current + 1 : 0;
-                renderSlide(current);
+                renderSlide(next());
             }, opts.autoplaySecs);
         };
-        setAutoplay();
+        if(play) setAutoplay();
 
-        playBtn.textContent = opts.stopTXT;
+        playBtn.textContent = play ? opts.stopTXT: opts.playTXT;
         playBtn.addEventListener('click', () => {
             if (!play) {
                 setAutoplay();
@@ -94,39 +101,35 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         });
     }
 
-    const next = document.createElement('button');
-    next.classList.add('gallery__nav', 'gallery__nav--next');
-    next.textContent = opts.nextTXT;
-    next.addEventListener('click', () => {
-        current = current < slideLib.length - 1 ? current + 1 : 0;
-        renderSlide(current);
+    const prevBtn = document.createElement('button');
+    prevBtn.classList.add('gallery__nav', 'gallery__nav--prev');
+    prevBtn.textContent = opts.prevTXT;
+    prevBtn.addEventListener('click', () => {
+        renderSlide(prev());
         clearInterval(autoplay);
     });
 
-    const prev = document.createElement('button');
-    prev.classList.add('gallery__nav', 'gallery__nav--prev');
-    prev.textContent = opts.prevTXT;
-    prev.addEventListener('click', () => {
-        current = current > 0 ? current - 1 : slideLib.length - 1;
-        renderSlide(current);
+    const nextBtn = document.createElement('button');
+    nextBtn.classList.add('gallery__nav', 'gallery__nav--next');
+    nextBtn.textContent = opts.nextTXT;
+    nextBtn.addEventListener('click', () => {
+        renderSlide(next());
         clearInterval(autoplay);
     });
 
     document.body.addEventListener('keydown', (event) => {
         if (event.key === 'ArrowLeft') {
-            current = current > 0 ? current - 1 : slideLib.length - 1;
-            renderSlide(current);
+            renderSlide(prev());
             clearInterval(autoplay);
         }
         if (event.key === 'ArrowRight') {
-            current = current < slideLib.length - 1 ? current + 1 : 0;
-            renderSlide(current);
+            renderSlide(next());
             clearInterval(autoplay);
         }
     });
 
     dots.classList.add('gallery__dots');
-    gallery.append(prev, dots, next);
+    gallery.append(prevBtn, dots, nextBtn);
 
     gallery.style.marginBottom = `${dots.clientHeight}px`;
 });
