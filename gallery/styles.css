@@ -35,6 +35,10 @@
     min-height: 1rem;
 }
 
+.dots__current {
+    background: none;
+}
+
 .gallery__nav {
     position: absolute;
     width: 25%;

@@ -17,12 +17,32 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         captionOverlay: JSON.parse(gal.getAttribute('captionsOverlay')) ?? true,
     };
 
+    // TODO:
+    // 1) que los puntos marquen cual es la slide actual
+    // 2) que que la imagen pueda estar contenida
+    // 3) crear la alternativa de transición entre slides
+    // 4) limpiar el CSS (ojo al Seteo de dimensiones responsive de la galería)
+    // 5) que las zonas activas de los botones > y < no sean la misma interfase visual del botón
+    // 6) hacerla lo más accesible posible, arias y tales
+
     const gallery = gal;
     const galleryID = gal.getAttribute('id');
     const slideLib = [...gallery.children];
     const dots = document.createElement('div');
     const prevBtn = document.createElement('button');
     const nextBtn = document.createElement('button');
+
+    const displaySlide = (() => {
+        const slide = { functions: [] };
+        const set = (value) => {
+            slide.functions.forEach((callback) => callback(value));
+        };
+        const subsCallback = (callback) => {
+            slide.functions.push(callback);
+        };
+
+        return { set, subsCallback };
+    })();
 
     let current = opts.firstSlide;
     if (/random/i.test(opts.firstSlide)) {
@@ -32,13 +52,13 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         current = opts.firstSlide;
     }
 
-    const next = () => {
+    const nextSlide = () => {
         current = current < slideLib.length - 1 ? current + 1 : 0;
-        return current;
+        displaySlide.set(current);
     };
-    const prev = () => {
+    const prevSlide = () => {
         current = current > 0 ? current - 1 : slideLib.length - 1;
-        return current;
+        displaySlide.set(current);
     };
 
     const renderSlide = (img) => {
@@ -59,7 +79,8 @@ document.querySelectorAll('.gallery').forEach((gal) => {
                 `${totalHeight - captionHeight}px`;
         }
     };
-    renderSlide(current);
+    displaySlide.subsCallback(renderSlide);
+    displaySlide.set(current);
 
     let autoplay;
     if (opts.autoplay) {
@@ -67,10 +88,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         let play = opts.autoStart;
 
         const setAutoplay = () => {
-            autoplay = setInterval(
-                () => renderSlide(next()),
-                opts.autoplaySecs,
-            );
+            autoplay = setInterval(() => nextSlide(), opts.autoplaySecs);
         };
         if (play) setAutoplay();
 
@@ -92,10 +110,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         gallery.addEventListener('mousemove', () => {
             if (!play) return;
             clearInterval(autoplay);
-            autoplay = setInterval(
-                () => renderSlide(next()),
-                opts.autoplaySecs,
-            );
+            setAutoplay()
         });
     }
 
@@ -115,14 +130,14 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     prevBtn.classList.add('gallery__nav', 'gallery__nav--prev');
     prevBtn.textContent = opts.prevTXT;
     prevBtn.addEventListener('click', () => {
-        renderSlide(prev());
+        prevSlide();
         clearInterval(autoplay);
     });
 
     nextBtn.classList.add('gallery__nav', 'gallery__nav--next');
     nextBtn.textContent = opts.nextTXT;
     nextBtn.addEventListener('click', () => {
-        renderSlide(next());
+        nextSlide();
         clearInterval(autoplay);
     });
 
