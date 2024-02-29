@@ -18,15 +18,12 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     };
 
     // TODO:
-    // 1) que los puntos marquen cual es la slide actual
-    // 2) que que la imagen pueda estar contenida
     // 3) crear la alternativa de transición entre slides
     // 4) limpiar el CSS (ojo al Seteo de dimensiones responsive de la galería)
     // 5) que las zonas activas de los botones > y < no sean la misma interfase visual del botón
     // 6) hacerla lo más accesible posible, arias y tales
 
     const gallery = gal;
-    const galleryID = gal.getAttribute('id');
     const slideLib = [...gallery.children];
     const dots = document.createElement('div');
     const prevBtn = document.createElement('button');
@@ -61,47 +58,53 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         displaySlide.set(current);
     };
 
+    // prettier-ignore
     const renderSlide = (img) => {
         if (opts.transition === 'alpha') {
-            const previousImg = document.querySelector(
-                `#${galleryID} .gallery__slide--visible`,
-            );
-            if (previousImg) {
-                previousImg.classList.remove('gallery__slide--visible');
-            }
+            const prevIMG = gallery.querySelector('.gallery__slide--visible');
+            if (prevIMG) prevIMG.classList.remove('gallery__slide--visible');
             slideLib[img].classList.add('gallery__slide--visible');
         }
         if (!opts.captionOverlay) {
             const totalHeight = slideLib[img].clientHeight;
-            const captionHeight =
-                slideLib[img].querySelector('figcaption').clientHeight;
-            slideLib[img].querySelector('img').style.height =
-                `${totalHeight - captionHeight}px`;
+            const captionHeight = slideLib[img].querySelector('figcaption').clientHeight;
+            slideLib[img].querySelector('img').style.height = `${totalHeight - captionHeight}px`;
+        }
+        const slideImg = slideLib[img].querySelector('img')
+        if (slideImg.getAttribute('data-contained') === 'true') {
+            slideImg.style.objectFit = 'contain'
         }
     };
     displaySlide.subsCallback(renderSlide);
 
-    let autoplay;
+    console.log(slideLib[1].querySelector('img').getAttribute('data-contained'))
+
+    let removeAutoplay;
     if (opts.autoplay) {
         const playBtn = document.createElement('button');
         let play = opts.autoStart;
+        let autoplay;
 
         const setAutoplay = () => {
             autoplay = setInterval(() => nextSlide(), opts.autoplaySecs);
+            playBtn.textContent = opts.stopTXT;
+            play = true;
         };
         if (play) setAutoplay();
+
+        removeAutoplay = () => {
+            clearInterval(autoplay);
+            playBtn.textContent = opts.playTXT;
+            play = false;
+        };
 
         playBtn.textContent = play ? opts.stopTXT : opts.playTXT;
         playBtn.addEventListener('click', () => {
             if (!play) {
                 setAutoplay();
-                playBtn.textContent = opts.stopTXT;
-                play = true;
                 return;
             }
-            clearInterval(autoplay);
-            playBtn.textContent = opts.playTXT;
-            play = false;
+            removeAutoplay();
         });
 
         dots.appendChild(playBtn);
@@ -121,15 +124,16 @@ document.querySelectorAll('.gallery').forEach((gal) => {
 
             dot.addEventListener('click', () => {
                 displaySlide.set(index);
-                clearInterval(autoplay);
+                current = index;
+                removeAutoplay();
             });
             dots.appendChild(dot);
         });
 
-        const markCurrent = (number) => {
+        const markCurrent = (slide) => {
             const marked = dots.querySelector('.dots__btn--active');
             if (marked) marked.classList.remove('dots__btn--active');
-            dots.children[number + 1].classList.add('dots__btn--active');
+            dots.children[slide].nextElementSibling.classList.add('dots__btn--active');
         };
         displaySlide.subsCallback(markCurrent);
     }
@@ -138,14 +142,14 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     prevBtn.textContent = opts.prevTXT;
     prevBtn.addEventListener('click', () => {
         prevSlide();
-        clearInterval(autoplay);
+        removeAutoplay();
     });
 
     nextBtn.classList.add('gallery__nav', 'gallery__nav--next');
     nextBtn.textContent = opts.nextTXT;
     nextBtn.addEventListener('click', () => {
         nextSlide();
-        clearInterval(autoplay);
+        removeAutoplay();
     });
 
     dots.classList.add('gallery__dots');
