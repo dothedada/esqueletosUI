@@ -8,10 +8,10 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         transition: gal.getAttribute('transition') === 'hor' ? 'hor' : 'alpha',
         firstSlide: gal.getAttribute('firstSlide') ?? 0,
         autoplay: JSON.parse(gal.getAttribute('autoplay')) ?? true,
-        autoStart: JSON.parse(gal.getAttribute('autoplayStart')) ?? true,
+        autoStart: JSON.parse(gal.getAttribute('autoplayStart')) ?? false,
         autoplaySecs: JSON.parse(gal.getAttribute('autoplaySeconds'))
             ? JSON.parse(gal.getAttribute('autoplaySeconds')) * 1000
-            : 2000,
+            : 5000,
         posMarker: JSON.parse(gal.getAttribute('slideMarkers')) ?? true,
         captionOverlay: JSON.parse(gal.getAttribute('captionsOverlay')) ?? true,
     };
@@ -85,6 +85,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             const totalHeight = slideLib[img].clientHeight;
             const captionHeight =
                 slideLib[img].querySelector('figcaption').clientHeight;
+
             slideLib[img].querySelector('img').style.height =
                 `${totalHeight - captionHeight}px`;
         }
@@ -124,9 +125,12 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             }
             removeAutoplay();
         });
-        gallery.addEventListener('mousemove', () => {
+        frame.addEventListener('mouseenter', () => {
             if (!play) return;
             clearInterval(autoplay);
+        });
+        frame.addEventListener('mouseleave', () => {
+            if (!play) return;
             setAutoplay();
         });
     }
@@ -137,8 +141,8 @@ document.querySelectorAll('.gallery').forEach((gal) => {
             dot.classList.add('dots__btn');
 
             dot.addEventListener('click', () => {
-                displaySlide.set(index);
-                current = index;
+                current = index
+                displaySlide.set(current);
                 removeAutoplay();
             });
             dots.appendChild(dot);

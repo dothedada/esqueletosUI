@@ -11,6 +11,10 @@
 .gallery button {
     cursor: pointer;
 }
+.gallery button:focus-visible {
+    outline: solid 2px hsl(0 0 0);
+    outline-offset: 2px;
+}
 /* Position markers */
 .gallery__dots {
     position: absolute;
@@ -92,6 +96,10 @@
 .nav__btn:hover .nav__btnUI--next {
     color: hsl(0 0 100);
     background-color: hsl(0 0 0);
+}
+.nav__btn:focus-visible .nav__btnUI--prev,
+.nav__btn:focus-visible .nav__btnUI--next {
+    color: hsl(0 0 100);
 }
 
 /* Slides */
