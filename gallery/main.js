@@ -53,28 +53,51 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         displaySlide.set(current);
     };
 
-    if (opts.transition === 'alpha') {
-        slideLib.forEach((img) => img.classList.add('slideAlpha'));
-    }
+    const addAriaSlides = (img, index) => {
+        const labeled =
+            img.querySelector('figcaption') ??
+            img.querySelector('h2') ??
+            img.firstElementChild;
+        img.setAttribute('role', 'group');
+        img.setAttribute('aria-hidden', 'true');
+        img.setAttribute('aria-roledescription', 'slide');
+        labeled.setAttribute('id', `${gallery.getAttribute('id')}_${index}`);
+        img.setAttribute(
+            'aria-labeledby',
+            `${gallery.getAttribute('id')}_${index}`,
+        );
+    };
+
     let reel;
-    let frame;
+    const frame = document.createElement('div');
+    frame.classList.add('frame');
+    if (opts.transition === 'alpha') {
+        slideLib.forEach((img, index) => {
+            img.classList.add('slideAlpha');
+            addAriaSlides(img, index);
+        });
+        gallery.append(frame);
+    }
+
     if (opts.transition === 'hor') {
         reel = document.createElement('div');
-        frame = document.createElement('div')
         reel.classList.add('container');
-        frame.classList.add('frame')
-        frame.append(reel)
+        frame.append(reel);
         gallery.append(frame);
         slideLib.forEach((image, index) => {
             const img = image;
             reel.append(img);
             img.style.left = `${index * frame.clientWidth}px`;
+            addAriaSlides(img, index);
         });
     }
 
     const renderSlide = (img) => {
+        const prevIMG = gallery.querySelector('[aria-hidden="false"]');
+        if (prevIMG) prevIMG.setAttribute('aria-hidden', 'true');
+        slideLib[img].setAttribute('aria-hidden', 'false');
+
         if (opts.transition === 'alpha') {
-            const prevIMG = gallery.querySelector('.slideAlpha--visible');
             if (prevIMG) prevIMG.classList.remove('slideAlpha--visible');
             slideLib[img].classList.add('slideAlpha--visible');
         }
@@ -104,17 +127,20 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         const playBtn = document.createElement('button');
         playBtn.classList.add('dots__play');
         playBtn.textContent = play ? opts.stopTXT : opts.playTXT;
+        playBtn.ariaLabel = play ? 'Detener' : 'Reproducrir';
         dots.appendChild(playBtn);
 
         const setAutoplay = () => {
             autoplay = setInterval(() => nextSlide(), opts.autoplaySecs);
             playBtn.textContent = opts.stopTXT;
+            playBtn.ariaLabel = 'Detener';
             play = true;
         };
         if (play) setAutoplay();
         removeAutoplay = () => {
             clearInterval(autoplay);
             playBtn.textContent = opts.playTXT;
+            playBtn.ariaLabel = 'Reproducrir';
             play = false;
         };
 
@@ -139,9 +165,10 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         slideLib.forEach((_, index) => {
             const dot = document.createElement('button');
             dot.classList.add('dots__btn');
+            dot.ariaLabel = `Mostrar el slide ${index + 1} de ${slideLib.length}`;
 
             dot.addEventListener('click', () => {
-                current = index
+                current = index;
                 displaySlide.set(current);
                 removeAutoplay();
             });
@@ -158,6 +185,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
 
     prevBtn.classList.add('nav__btn', 'nav__btn--prev');
     const prevBtnUI = document.createElement('span');
+    prevBtn.ariaLabel = 'Ir al slide anterior';
     prevBtnUI.classList.add('nav__btnUI--prev');
     prevBtnUI.textContent = opts.prevTXT;
     prevBtn.appendChild(prevBtnUI);
@@ -168,6 +196,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
 
     nextBtn.classList.add('nav__btn', 'nav__btn--next');
     const nextBtnUI = document.createElement('span');
+    nextBtn.ariaLabel = 'Ir al siguiente slide';
     nextBtnUI.classList.add('nav__btnUI--next');
     nextBtnUI.textContent = opts.nextTXT;
     nextBtn.appendChild(nextBtnUI);
@@ -177,7 +206,14 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     });
 
     dots.classList.add('gallery__dots');
-    gallery.append(prevBtn, dots, nextBtn);
+    dots.role = 'group';
+    dots.ariaLabel = 'Constroles del slider';
+
+    gallery.insertBefore(prevBtn, gallery.firstElementChild)
+    gallery.insertBefore(dots, gallery.firstElementChild)
+    gallery.appendChild(nextBtn)
+
+    // gallery.append(prevBtn, dots, nextBtn);
 
     gallery.style.marginBottom = `${dots.clientHeight}px`;
     displaySlide.set(current);

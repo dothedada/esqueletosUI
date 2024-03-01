@@ -10,6 +10,11 @@
         <div
             class="gallery"
             id="galeria1"
+
+            role="group"
+            aria-roledescription="Presentación de imágenes"
+            aria-label="Imágenes de prueba"
+
             captionsOverlay="true"
             autoplay="true"
             autoplaySeconds="1"
@@ -18,7 +23,14 @@
             slideMarkers="true"
             transition="hor"
         >
-            <figure class="gallery__slide">
+            <!-- role="group" -->
+            <!-- aria-roledescription="slide" -->
+            <!-- aria-labelledby="figcaption" -->
+            <figure 
+                class="gallery__slide"
+
+
+            >
                 <img src="https://picsum.photos/600/400?random=1" alt="" />
                 <figcaption>
                     Lorem ipsum dolor sit, amet consectetur adipisicing elit.
