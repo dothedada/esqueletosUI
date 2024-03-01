@@ -5,7 +5,7 @@ document.querySelectorAll('.gallery').forEach((gal) => {
         playTXT: '▶',
         stopTXT: '■',
 
-        transition: 'alpha', // horizontal - vertical
+        transition: gal.getAttribute('transition') === 'hor' ? 'hor' : 'alpha',
         firstSlide: gal.getAttribute('firstSlide') ?? 0,
         autoplay: JSON.parse(gal.getAttribute('autoplay')) ?? true,
         autoStart: JSON.parse(gal.getAttribute('autoplayStart')) ?? true,
@@ -17,7 +17,6 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     };
 
     // TODO:
-    // 3) crear la alternativa de transición entre slides
     // 6) hacerla lo más accesible posible, arias y tales
 
     const gallery = gal;
@@ -57,13 +56,31 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     if (opts.transition === 'alpha') {
         slideLib.forEach((img) => img.classList.add('slideAlpha'));
     }
+    let reel;
+    let frame;
+    if (opts.transition === 'hor') {
+        reel = document.createElement('div');
+        frame = document.createElement('div')
+        reel.classList.add('container');
+        frame.classList.add('frame')
+        frame.append(reel)
+        gallery.append(frame);
+        slideLib.forEach((image, index) => {
+            const img = image;
+            reel.append(img);
+            img.style.left = `${index * frame.clientWidth}px`;
+        });
+    }
+
     const renderSlide = (img) => {
         if (opts.transition === 'alpha') {
             const prevIMG = gallery.querySelector('.slideAlpha--visible');
             if (prevIMG) prevIMG.classList.remove('slideAlpha--visible');
             slideLib[img].classList.add('slideAlpha--visible');
         }
-
+        if (opts.transition === 'hor') {
+            reel.style.left = `-${img * frame.clientWidth}px`;
+        }
         if (!opts.captionOverlay) {
             const totalHeight = slideLib[img].clientHeight;
             const captionHeight =
@@ -136,20 +153,20 @@ document.querySelectorAll('.gallery').forEach((gal) => {
     }
 
     prevBtn.classList.add('nav__btn', 'nav__btn--prev');
-    const prevBtnUI = document.createElement('span')
-    prevBtnUI.classList.add('nav__btnUI--prev')
+    const prevBtnUI = document.createElement('span');
+    prevBtnUI.classList.add('nav__btnUI--prev');
     prevBtnUI.textContent = opts.prevTXT;
-    prevBtn.appendChild(prevBtnUI)
+    prevBtn.appendChild(prevBtnUI);
     prevBtn.addEventListener('click', () => {
         prevSlide();
         removeAutoplay();
     });
 
     nextBtn.classList.add('nav__btn', 'nav__btn--next');
-    const nextBtnUI = document.createElement('span')
-    nextBtnUI.classList.add('nav__btnUI--next')
+    const nextBtnUI = document.createElement('span');
+    nextBtnUI.classList.add('nav__btnUI--next');
     nextBtnUI.textContent = opts.nextTXT;
-    nextBtn.appendChild(nextBtnUI)
+    nextBtn.appendChild(nextBtnUI);
     nextBtn.addEventListener('click', () => {
         nextSlide();
         removeAutoplay();
